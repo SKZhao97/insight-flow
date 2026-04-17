@@ -3,6 +3,7 @@ from app.api.schemas.document import (
     ManualTextIngestRequest,
     URLIngestRequest,
 )
+from app.api.schemas.process import DocumentProcessResult
 from app.api.schemas.source import RSSSourceCreateRequest, SourceListItem
 
 __all__ = [
@@ -11,4 +12,5 @@ __all__ = [
     "URLIngestRequest",
     "ManualTextIngestRequest",
     "DocumentListItem",
+    "DocumentProcessResult",
 ]

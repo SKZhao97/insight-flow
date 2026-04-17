@@ -5,8 +5,10 @@ Summary: Insight Flow backend service
 Requires-Python: >=3.11
 Requires-Dist: alembic>=1.14.0
 Requires-Dist: fastapi>=0.115.0
+Requires-Dist: httpx>=0.28.0
 Requires-Dist: pgvector>=0.3.6
 Requires-Dist: psycopg[binary]>=3.2.0
 Requires-Dist: pydantic-settings>=2.6.0
 Requires-Dist: sqlalchemy>=2.0.36
+Requires-Dist: trafilatura>=1.12.0
 Requires-Dist: uvicorn[standard]>=0.32.0

@@ -7,6 +7,11 @@ class Settings(BaseSettings):
     app_env: str = "development"
     log_level: str = "INFO"
     database_url: str = "postgresql+psycopg:///insight_flow"
+    fetch_user_agent: str = "InsightFlowBot/0.1"
+    fetch_timeout_seconds: float = 20.0
+    jina_reader_base_url: str | None = None
+    firecrawl_base_url: str | None = None
+    firecrawl_api_key: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",

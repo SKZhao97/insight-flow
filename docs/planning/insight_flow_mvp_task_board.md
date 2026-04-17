@@ -31,7 +31,7 @@
 | --- | --- | --- |
 | 01 工程骨架 | `DONE` | 后端基础骨架已完成第一版 |
 | 02 数据与模型 | `DONE` | 模型、metadata 与本地 PostgreSQL migration 验证已完成 |
-| 03 摄入与分析主链路 | `DOING` | 基础 API 与三种输入入口已落地，继续推进抓取与标准化 |
+| 03 摄入与分析主链路 | `DONE` | 输入、抓取、标准化、质量评分、去重、分析、chunk、embedding 与 process 主链路已跑通 |
 | 04 RAG 与周报 Workflow | `TODO` | 依赖模块 03 |
 | 05 前端工作台 | `TODO` | 可在 03 后局部并行 |
 | 06 联调与收尾 | `TODO` | 最后阶段 |
@@ -110,17 +110,17 @@
 | M03-03 | 实现 RSS source 写入逻辑 | `DONE` | M03-01 | 已验证可写入 `sources` |
 | M03-04 | 实现 URL 导入接口 | `DONE` | M03-02 | 已验证可写入 `documents`，含 canonical url 与冲突保护 |
 | M03-05 | 实现手动文本导入接口 | `DONE` | M03-02 | 已验证可写入手动文本 document |
-| M03-06 | 实现 `httpx + trafilatura` 抓取链路 | `TODO` | M02 | |
-| M03-07 | 实现抓取 fallback 逻辑 | `TODO` | M03-06 | |
-| M03-08 | 实现 normalization service | `TODO` | M03-06 | |
-| M03-09 | 实现质量评分 service | `TODO` | M03-08 | |
-| M03-10 | 实现语义去重 service | `TODO` | M03-08, M02-06 | |
-| M03-11 | 实现 supporting-source 归并逻辑 | `TODO` | M03-10 | |
-| M03-12 | 实现文档分析 service | `TODO` | M03-08 | |
-| M03-13 | 输出摘要/标签/分类/观点/双语术语 | `TODO` | M03-12 | |
-| M03-14 | 实现 chunk 构建逻辑 | `TODO` | M03-08 | |
-| M03-15 | 实现 embedding 写入逻辑 | `TODO` | M03-14, M03-13 | |
-| M03-16 | 打通 ingest -> analyze -> persist 主链路 | `TODO` | M03-03 ~ M03-15 | |
+| M03-06 | 实现 `httpx + trafilatura` 抓取链路 | `DONE` | M02 | 已验证 URL 文档抓取与正文提取闭环 |
+| M03-07 | 实现抓取 fallback 逻辑 | `DONE` | M03-06 | 已接入 Jina / Firecrawl fallback 配置路径，真实 provider 凭证验证待后续环境配置 |
+| M03-08 | 实现 normalization service | `DONE` | M03-06 | 已验证 manual text 与 URL 文档标准化闭环 |
+| M03-09 | 实现质量评分 service | `DONE` | M03-08 | 已落地启发式质量评分并接入 process 主链路 |
+| M03-10 | 实现语义去重 service | `DONE` | M03-08, M02-06 | 已落地基于内容 hash + 本地 embedding 的相似度判定 |
+| M03-11 | 实现 supporting-source 归并逻辑 | `DONE` | M03-10 | 已支持 `supporting_source` / `near_duplicate` 关系写入 |
+| M03-12 | 实现文档分析 service | `DONE` | M03-08 | 已落地本地启发式单篇分析服务 |
+| M03-13 | 输出摘要/标签/分类/观点/双语术语 | `DONE` | M03-12 | 已写入 `summaries` 结构化结果 |
+| M03-14 | 实现 chunk 构建逻辑 | `DONE` | M03-08 | 已写入 `document_chunks` |
+| M03-15 | 实现 embedding 写入逻辑 | `DONE` | M03-14, M03-13 | 已写入 chunk embedding 与 summary embedding |
+| M03-16 | 打通 ingest -> analyze -> persist 主链路 | `DONE` | M03-03 ~ M03-15 | 已验证 `/documents/{id}/process` 端到端闭环与重复文档跳过逻辑 |
 
 ### 模块 03 可并行项
 

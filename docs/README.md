@@ -78,6 +78,7 @@
 - [模块技术栈与学习地图](./planning/insight_flow_module_learning_map.md)
 - [开发日志与可追溯性约定](./planning/insight_flow_logging_and_traceability_convention.md)
 - [模块 01 实现 Spec](./planning/insight_flow_module_01_project_bootstrap_spec.md)
+- [模块 03 执行与验证记录](./planning/insight_flow_module_03_execution_log.md)
 
 ## 3.4 Archive
 
