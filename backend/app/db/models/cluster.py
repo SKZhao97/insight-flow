@@ -12,16 +12,22 @@ from app.db.mixins import TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
     from app.db.models.document import Document
+    from app.db.models.workflow import WorkflowRun
 
 
 class Cluster(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "clusters"
     __table_args__ = (
+        Index("idx_clusters_workflow_run_id", "workflow_run_id"),
         Index("idx_clusters_window_start_end", "window_start", "window_end"),
         Index("idx_clusters_cluster_type", "cluster_type"),
         Index("idx_clusters_status", "status"),
     )
 
+    workflow_run_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("workflow_runs.id", ondelete="CASCADE"),
+        nullable=True,
+    )
     title: Mapped[str] = mapped_column(Text, nullable=False)
     summary: Mapped[str] = mapped_column(Text, nullable=False)
     cluster_type: Mapped[str] = mapped_column(String(32), nullable=False)
@@ -34,6 +40,7 @@ class Cluster(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         back_populates="cluster",
         cascade="all, delete-orphan",
     )
+    workflow_run: Mapped["WorkflowRun | None"] = relationship()
 
 
 class ClusterItem(UUIDPrimaryKeyMixin, TimestampMixin, Base):

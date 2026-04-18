@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.logging import get_logger
@@ -41,14 +41,15 @@ def retrieve_history_for_clusters(
     query_embedding = embed_text(query_text)
 
     history_cutoff = (workflow_run.week_start or datetime.now().astimezone()) - timedelta(days=history_days)
+    effective_timestamp = func.coalesce(Document.published_at, Document.created_at)
     summary_stmt = (
         select(SummaryEmbedding)
         .join(Summary, SummaryEmbedding.summary_id == Summary.id)
         .join(Document, Summary.document_id == Document.id)
         .options(selectinload(SummaryEmbedding.summary))
         .where(SummaryEmbedding.embedding_model == EMBEDDING_MODEL_NAME)
-        .where(Document.created_at >= history_cutoff)
-        .where(Document.created_at < workflow_run.week_start)
+        .where(effective_timestamp >= history_cutoff)
+        .where(effective_timestamp < workflow_run.week_start)
     )
     summary_embeddings = list(db.scalars(summary_stmt).all())
 

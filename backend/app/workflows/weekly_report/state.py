@@ -43,6 +43,8 @@ class WeeklyReportGraphState(TypedDict):
     retrieved_chunk_ids: list[str]
     review_checks: dict[str, Any]
     retry_count: int
+    draft_constraints: dict[str, Any]
+    retrieval_overrides: dict[str, Any]
     report_id: NotRequired[str | None]
     retrieval_query: NotRequired[str | None]
     context_pack_ref: NotRequired[str | None]
@@ -79,6 +81,8 @@ def build_initial_weekly_report_state(
         retrieval_query=None,
         retrieved_summary_ids=[],
         retrieved_chunk_ids=[],
+        draft_constraints={},
+        retrieval_overrides={},
         context_pack_ref=None,
         draft_report_ref=None,
         exported_markdown_path=None,

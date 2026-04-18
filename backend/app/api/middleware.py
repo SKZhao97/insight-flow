@@ -29,19 +29,19 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
         except Exception:
             logger.exception("request.failed method=%s path=%s", request.method, request.url.path)
-            clear_request_context()
             raise
+        else:
+            elapsed_ms = (time.perf_counter() - started_at) * 1000
+            response.headers["X-Request-ID"] = request_id
+            response.headers["X-Trace-ID"] = trace_id
 
-        elapsed_ms = (time.perf_counter() - started_at) * 1000
-        response.headers["X-Request-ID"] = request_id
-        response.headers["X-Trace-ID"] = trace_id
-
-        logger.info(
-            "request.completed method=%s path=%s status_code=%s elapsed_ms=%.2f",
-            request.method,
-            request.url.path,
-            response.status_code,
-            elapsed_ms,
-        )
-        clear_request_context()
-        return response
+            logger.info(
+                "request.completed method=%s path=%s status_code=%s elapsed_ms=%.2f",
+                request.method,
+                request.url.path,
+                response.status_code,
+                elapsed_ms,
+            )
+            return response
+        finally:
+            clear_request_context()

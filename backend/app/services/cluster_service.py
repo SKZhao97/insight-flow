@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from datetime import datetime
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.logging import get_logger
@@ -13,6 +13,7 @@ from app.db.enums import ClusterStatus, ClusterType, DocumentDedupStatus, Docume
 from app.db.models.cluster import Cluster, ClusterItem
 from app.db.models.document import Document
 from app.db.models.summary import Summary
+from app.db.models.workflow import WorkflowRun
 
 
 logger = get_logger(__name__)
@@ -31,6 +32,8 @@ def _cluster_key(summary: Summary) -> str:
 def build_weekly_clusters(
     db: Session,
     *,
+    workflow_run: WorkflowRun,
+    document_ids: list,
     window_start: datetime,
     window_end: datetime,
 ) -> list[Cluster]:
@@ -41,28 +44,30 @@ def build_weekly_clusters(
     documents so the report reads like event synthesis instead of a raw list of
     articles.
     """
+    effective_timestamp = func.coalesce(Document.published_at, Document.created_at)
     summary_stmt = (
         select(Summary)
         .join(Document, Summary.document_id == Document.id)
-        .where(Document.created_at >= window_start)
-        .where(Document.created_at <= window_end)
+        .where(Document.id.in_(document_ids))
+        .where(effective_timestamp >= window_start)
+        .where(effective_timestamp <= window_end)
         .where(Document.quality_status == DocumentQualityStatus.ACCEPTED.value)
         .where(Document.dedup_status == DocumentDedupStatus.PRIMARY.value)
         .options(selectinload(Summary.document))
-        .order_by(Document.created_at.asc())
+        .order_by(effective_timestamp.asc())
     )
     summaries = list(db.scalars(summary_stmt).all())
 
-    # Rebuilding the same weekly window must be deterministic, so the service
-    # clears previous clusters for that exact window before creating new ones.
+    # Clusters are scoped to one workflow run. Rebuilding a run must be
+    # deterministic, but one run must never delete another run's cluster set.
     db.execute(
         delete(ClusterItem).where(
             ClusterItem.cluster_id.in_(
-                select(Cluster.id).where(Cluster.window_start == window_start).where(Cluster.window_end == window_end)
+                select(Cluster.id).where(Cluster.workflow_run_id == workflow_run.id)
             )
         )
     )
-    db.execute(delete(Cluster).where(Cluster.window_start == window_start).where(Cluster.window_end == window_end))
+    db.execute(delete(Cluster).where(Cluster.workflow_run_id == workflow_run.id))
     db.flush()
 
     grouped: dict[str, list[Summary]] = defaultdict(list)
@@ -75,6 +80,7 @@ def build_weekly_clusters(
         title = f"{first.category.replace('_', ' ').title()}: {(first.tags or ['general'])[0]}"
         cluster_summary = " ".join(summary.short_summary for summary in group[:3])[:1000]
         cluster = Cluster(
+            workflow_run_id=workflow_run.id,
             title=title,
             summary=cluster_summary,
             cluster_type=ClusterType.WEEKLY_EVENT.value,

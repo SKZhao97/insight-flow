@@ -18,7 +18,7 @@ from datetime import datetime
 from typing import Callable
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.logging import get_logger
@@ -156,11 +156,12 @@ def collect_inputs_node(db: Session, state: WeeklyReportGraphState) -> WeeklyRep
             candidate_ids = state["input_document_ids"]
         else:
             week_start, week_end = parse_week_range(state)
+            effective_timestamp = func.coalesce(Document.published_at, Document.created_at)
             stmt = (
                 select(Document)
-                .where(Document.created_at >= week_start)
-                .where(Document.created_at <= week_end)
-                .order_by(Document.created_at.asc())
+                .where(effective_timestamp >= week_start)
+                .where(effective_timestamp <= week_end)
+                .order_by(effective_timestamp.asc())
             )
             candidate_ids = [str(document.id) for document in db.scalars(stmt).all()]
 
@@ -298,7 +299,13 @@ def build_clusters_node(db: Session, state: WeeklyReportGraphState) -> WeeklyRep
 
     def _handler(db: Session, state: WeeklyReportGraphState, _workflow_run: object) -> dict:
         week_start, week_end = parse_week_range(state)
-        clusters = build_weekly_clusters(db, window_start=week_start, window_end=week_end)
+        clusters = build_weekly_clusters(
+            db,
+            workflow_run=_workflow_run,
+            document_ids=[UUID(document_id) for document_id in state["accepted_document_ids"]],
+            window_start=week_start,
+            window_end=week_end,
+        )
         cluster_ids = [str(cluster.id) for cluster in clusters]
         logger.info(
             "workflow.node.build_clusters cluster_count=%s window_start=%s window_end=%s",
@@ -315,10 +322,14 @@ def retrieve_history_node(db: Session, state: WeeklyReportGraphState) -> WeeklyR
     """Retrieve historical summaries and evidence chunks for the current clusters."""
 
     def _handler(db: Session, state: WeeklyReportGraphState, workflow_run: object) -> dict:
+        retrieval_overrides = state.get("retrieval_overrides", {})
         retrieval_record = retrieve_history_for_clusters(
             db,
             workflow_run=workflow_run,
             cluster_ids=[UUID(cluster_id) for cluster_id in state["cluster_ids"]],
+            history_days=int(retrieval_overrides.get("history_days", 30)),
+            top_k=int(retrieval_overrides.get("top_k", 5)),
+            chunk_top_k=int(retrieval_overrides.get("chunk_top_k", 8)),
         )
         logger.info(
             "workflow.node.retrieve_history summary_hit_count=%s chunk_hit_count=%s",
@@ -379,6 +390,7 @@ def draft_weekly_report_node(db: Session, state: WeeklyReportGraphState) -> Week
             workflow_run=workflow_run,
             cluster_ids=[UUID(cluster_id) for cluster_id in state["cluster_ids"]],
             context_pack=context_pack,
+            draft_constraints=state.get("draft_constraints", {}),
         )
         logger.info(
             "workflow.node.draft_weekly_report report_id=%s content_length=%s",
@@ -419,6 +431,20 @@ def review_evidence_node(db: Session, state: WeeklyReportGraphState) -> WeeklyRe
         if review_result.decision != "pass":
             next_retry_count += 1
 
+        draft_constraints = dict(state.get("draft_constraints", {}))
+        retrieval_overrides = dict(state.get("retrieval_overrides", {}))
+        if review_result.decision == "conclusion_too_strong":
+            draft_constraints["soften_language"] = True
+        elif review_result.decision == "too_redundant":
+            draft_constraints["deduplicate_points"] = True
+        elif review_result.decision == "need_more_evidence":
+            retrieval_overrides["top_k"] = min(int(retrieval_overrides.get("top_k", 5)) + 2, 12)
+            retrieval_overrides["chunk_top_k"] = min(int(retrieval_overrides.get("chunk_top_k", 8)) + 2, 16)
+            retrieval_overrides["history_days"] = min(int(retrieval_overrides.get("history_days", 30)) + 14, 120)
+        else:
+            draft_constraints = {}
+            retrieval_overrides = {}
+
         logger.info(
             "workflow.node.review_evidence report_id=%s decision=%s retry_count=%s",
             report.id,
@@ -429,6 +455,8 @@ def review_evidence_node(db: Session, state: WeeklyReportGraphState) -> WeeklyRe
             "review_decision": review_result.decision,
             "review_checks": review_result.checks,
             "retry_count": next_retry_count,
+            "draft_constraints": draft_constraints,
+            "retrieval_overrides": retrieval_overrides,
         }
 
     return _execute_node(db, state, node_name="review_evidence", handler=_handler)

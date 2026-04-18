@@ -33,8 +33,8 @@
 | 02 数据与模型 | `DONE` | 模型、metadata 与本地 PostgreSQL migration 验证已完成 |
 | 03 摄入与分析主链路 | `DONE` | 输入、抓取、标准化、质量评分、去重、分析、chunk、embedding 与 process 主链路已跑通 |
 | 04 RAG 与周报 Workflow | `DONE` | `M04-01 ~ M04-23` 已落地并完成 graph、checkpoint、run/resume API 与 API 级闭环验证 |
-| 05 前端工作台 | `TODO` | 可在 03 后局部并行 |
-| 06 联调与收尾 | `TODO` | 最后阶段 |
+| 05 前端工作台 | `DONE` | `M05-01 ~ M05-09` 已落地并完成前端构建与本地前后端联调验证 |
+| 06 联调与收尾 | `DONE` | `M06-01 ~ M06-07` 已完成端到端验证、checkpoint/reviewer 回路验证、trace API、README 与演示/验证脚本 |
 
 ---
 
@@ -183,15 +183,15 @@
 
 | ID | 任务 | 状态 | 依赖 | 备注 |
 | --- | --- | --- | --- | --- |
-| M05-01 | 初始化前端项目骨架 | `TODO` | 无 | 若还没做 |
-| M05-02 | 建立基础布局与导航 | `TODO` | M05-01 | |
-| M05-03 | 实现 Sources 页面 | `TODO` | M03-01 | |
-| M05-04 | 实现 Documents 页面 | `TODO` | M03-02, M03-16 | |
-| M05-05 | 实现 Weekly Reports 列表页 | `TODO` | M04-21 | |
-| M05-06 | 实现 Report Editor 页面 | `TODO` | M04-23 | |
-| M05-07 | 实现 Workflow Runs 页面 | `TODO` | M04-21 | |
-| M05-08 | 接入 report export 操作 | `TODO` | M04-18 | |
-| M05-09 | 打通前后端联调 | `TODO` | M05-03 ~ M05-08 | |
+| M05-01 | 初始化前端项目骨架 | `DONE` | 无 | 已新增 `frontend/` 并接入 `Vite + React + TypeScript` |
+| M05-02 | 建立基础布局与导航 | `DONE` | M05-01 | 已完成 `AppShell`、路由和统一样式 |
+| M05-03 | 实现 Sources 页面 | `DONE` | M03-01 | 已接入 `/sources` 列表页 |
+| M05-04 | 实现 Documents 页面 | `DONE` | M03-02, M03-16 | 已接入 `/documents` 列表页 |
+| M05-05 | 实现 Weekly Reports 列表页 | `DONE` | M04-21 | 已接入 `/reports` 列表页 |
+| M05-06 | 实现 Report Editor 页面 | `DONE` | M04-23 | 已完成 report detail / markdown view 基础页 |
+| M05-07 | 实现 Workflow Runs 页面 | `DONE` | M04-21 | 已接入 `/workflow-runs` 列表页 |
+| M05-08 | 接入 report export 操作 | `DONE` | M04-18 | 已新增 report markdown 下载接口与前端下载入口 |
+| M05-09 | 打通前后端联调 | `DONE` | M05-03 ~ M05-08 | 已验证 Vite 代理到 FastAPI 的关键接口联调 |
 
 ### 模块 05 可并行项
 
@@ -211,28 +211,26 @@
 
 | ID | 任务 | 状态 | 依赖 | 备注 |
 | --- | --- | --- | --- | --- |
-| M06-01 | 端到端联调 ingest -> report | `TODO` | M03, M04, M05 | |
-| M06-02 | 测试 workflow checkpoint 恢复 | `TODO` | M04-20 | |
-| M06-03 | 测试 reviewer 回路 | `TODO` | M04-16, M04-19 | |
-| M06-04 | 验证引用链与来源回溯 | `TODO` | M04-23 | |
-| M06-05 | 基础异常处理补齐 | `TODO` | M06-01 | |
-| M06-06 | 补 README / 运行说明 | `TODO` | M06-01 | |
-| M06-07 | 补最小演示数据或演示脚本 | `TODO` | M06-01 | |
+| M06-01 | 端到端联调 ingest -> report | `DONE` | M03, M04, M05 | 已通过 `run_module_06_validation.py` scenario 1 验证 |
+| M06-02 | 测试 workflow checkpoint 恢复 | `DONE` | M04-20 | 已验证 `run -> waiting_human_edit -> resume -> completed` |
+| M06-03 | 测试 reviewer 回路 | `DONE` | M04-16, M04-19 | 已验证 reviewer 会先识别 `conclusion_too_strong`，再通过约束化重草稿收敛到 `pass -> human_edit` |
+| M06-04 | 验证引用链与来源回溯 | `DONE` | M04-23 | 已新增 `/reports/{report_id}/trace` 并验证 `mismatch_count=0` |
+| M06-05 | 基础异常处理补齐 | `DONE` | M06-01 | 已新增统一异常处理与 trace-aware 错误返回 |
+| M06-06 | 补 README / 运行说明 | `DONE` | M06-01 | 已新增根目录 `README.md` |
+| M06-07 | 补最小演示数据或演示脚本 | `DONE` | M06-01 | 已新增 `run_demo_flow.py` 与 `run_module_06_validation.py` |
 
 ---
 
 ## 9. 当前建议开工任务
 
-当前应进入：
+当前 MVP 任务已全部完成。
 
-### 模块 04：RAG 与周报 Workflow
+后续建议进入：
 
-优先任务顺序建议：
-
-1. `M05-01 ~ M05-04`
-   前端骨架与 Sources / Documents 基础页
-2. `M05-05 ~ M05-09`
-   Reports / Workflow Runs 页面与前后端联调
+1. `V1`
+   引入 Planner、增强主题观察和更强的研究任务入口
+2. `V2`
+   做深研究资产复利与检索质量
 
 ---
 

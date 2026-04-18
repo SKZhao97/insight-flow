@@ -82,6 +82,9 @@
 - [模块 01 实现 Spec](./planning/insight_flow_module_01_project_bootstrap_spec.md)
 - [模块 03 执行与验证记录](./planning/insight_flow_module_03_execution_log.md)
 - [模块 04 执行与验证记录](./planning/insight_flow_module_04_execution_log.md)
+- [模块 05 执行与验证记录](./planning/insight_flow_module_05_execution_log.md)
+- [模块 06 执行与验证记录](./planning/insight_flow_module_06_execution_log.md)
+- [严格自查报告](./planning/insight_flow_strict_self_review.md)
 
 ## 3.4 Archive
 
@@ -138,10 +141,17 @@
 - 后端工程骨架初始化
 - 模块 03：摄入与分析主链路
 - 模块 04：服务层与节点层
+- 模块 05：前端工作台
+- 模块 06：联调与收尾
+- 严格自查与回归修复
+- pytest 集成测试与脚本隔离清理
+
+当前 MVP 六个模块已全部完成。
 
 接下来主要推进方向：
 
-- 模块 05：前端工作台与前后端联调
+- `V1`：主题观察与更丰富的研究工作流
+- `V2`：更强的资产复利、检索和反馈回流
 
 当前执行约束：
 

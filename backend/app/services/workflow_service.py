@@ -65,11 +65,12 @@ def update_workflow_run_state(
     """
     Persist the latest serialized graph state on every node boundary.
 
-    The workflow table acts as the first persistence layer for state recovery.
-    LangGraph checkpoints will be added later, but persisting state_json now
-    already gives us durable traceability and simpler debugging.
+    The workflow row is our query-friendly mirror of the latest graph state.
+    Fields like retry_count are duplicated intentionally so the operational UI
+    does not need to parse JSON just to answer basic questions.
     """
     workflow_run.state_json = state_json
+    workflow_run.retry_count = int(state_json.get("retry_count", 0))
     if status is not None:
         workflow_run.status = status
     if finished_at is not None:

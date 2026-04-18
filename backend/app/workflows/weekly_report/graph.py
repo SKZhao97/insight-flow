@@ -104,9 +104,9 @@ def build_weekly_report_graph(
     """
     Compile the MVP weekly-report graph.
 
-    We default to an in-memory checkpointer today so the graph can already be
-    invoked in development. A Postgres-backed saver is the next step and will
-    replace this default in a later task.
+    We default to an in-memory checkpointer in lightweight development flows.
+    Production-like flows should use the Postgres-backed saver so interrupts and
+    resumes survive process restarts.
     """
 
     builder = StateGraph(WeeklyReportGraphState)

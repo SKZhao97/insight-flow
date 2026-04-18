@@ -6,3 +6,4 @@ insight_flow_backend.egg-info/SOURCES.txt
 insight_flow_backend.egg-info/dependency_links.txt
 insight_flow_backend.egg-info/requires.txt
 insight_flow_backend.egg-info/top_level.txt
+tests/test_mvp_integration.py

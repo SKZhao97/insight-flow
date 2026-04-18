@@ -13,6 +13,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -33,6 +34,12 @@ class Document(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         Index("idx_documents_status", "status"),
         Index("idx_documents_content_hash", "content_hash"),
         Index("idx_documents_canonical_url", "canonical_url"),
+        Index(
+            "uq_documents_canonical_url_not_null",
+            "canonical_url",
+            unique=True,
+            postgresql_where=text("canonical_url IS NOT NULL"),
+        ),
         Index("idx_documents_quality_status", "quality_status"),
         Index("idx_documents_dedup_status", "dedup_status"),
         Index(
