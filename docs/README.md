@@ -35,12 +35,13 @@
 ### 第三步：理解关键实现细节
 
 1. [langgraph_detailed_design](./architecture/insight_flow_langgraph_detailed_design.md)
-2. [database_schema_design](./architecture/insight_flow_database_schema_design.md)
-3. [sqlalchemy_models_draft](./architecture/insight_flow_sqlalchemy_models_draft.md)
-4. [current_codebase_walkthrough](./architecture/insight_flow_current_codebase_walkthrough.md)
-5. [database_table_flow](./architecture/insight_flow_database_table_flow.md)
-6. [url_to_report_lifecycle](./architecture/insight_flow_url_to_report_lifecycle.md)
-7. [schema_design_rationale](./architecture/insight_flow_schema_design_rationale.md)
+2. [m04_technical_design_details](./architecture/insight_flow_m04_technical_design_details.md)
+3. [database_schema_design](./architecture/insight_flow_database_schema_design.md)
+4. [sqlalchemy_models_draft](./architecture/insight_flow_sqlalchemy_models_draft.md)
+5. [current_codebase_walkthrough](./architecture/insight_flow_current_codebase_walkthrough.md)
+6. [database_table_flow](./architecture/insight_flow_database_table_flow.md)
+7. [url_to_report_lifecycle](./architecture/insight_flow_url_to_report_lifecycle.md)
+8. [schema_design_rationale](./architecture/insight_flow_schema_design_rationale.md)
 
 ### 第四步：进入具体开发
 
@@ -64,6 +65,7 @@
 
 - [MVP 技术方案](./architecture/insight_flow_mvp_technical_design.md)
 - [LangGraph 详细设计](./architecture/insight_flow_langgraph_detailed_design.md)
+- [M04 技术设计细节](./architecture/insight_flow_m04_technical_design_details.md)
 - [数据库 Schema 设计](./architecture/insight_flow_database_schema_design.md)
 - [SQLAlchemy Models 草案](./architecture/insight_flow_sqlalchemy_models_draft.md)
 - [当前代码导读](./architecture/insight_flow_current_codebase_walkthrough.md)
@@ -79,6 +81,7 @@
 - [开发日志与可追溯性约定](./planning/insight_flow_logging_and_traceability_convention.md)
 - [模块 01 实现 Spec](./planning/insight_flow_module_01_project_bootstrap_spec.md)
 - [模块 03 执行与验证记录](./planning/insight_flow_module_03_execution_log.md)
+- [模块 04 执行与验证记录](./planning/insight_flow_module_04_execution_log.md)
 
 ## 3.4 Archive
 
@@ -110,6 +113,7 @@
 优先看：
 
 - `architecture/langgraph_detailed_design`
+- `architecture/m04_technical_design_details`
 - `architecture/database_schema_design`
 - `architecture/sqlalchemy_models_draft`
 - `architecture/current_codebase_walkthrough`
@@ -132,10 +136,12 @@
 - SQLAlchemy model 草案
 - 模块 01 实现 spec
 - 后端工程骨架初始化
+- 模块 03：摄入与分析主链路
+- 模块 04：服务层与节点层
 
 接下来主要推进方向：
 
-- 模块 03：摄入与分析主链路
+- 模块 05：前端工作台与前后端联调
 
 当前执行约束：
 

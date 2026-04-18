@@ -32,7 +32,7 @@
 | 01 工程骨架 | `DONE` | 后端基础骨架已完成第一版 |
 | 02 数据与模型 | `DONE` | 模型、metadata 与本地 PostgreSQL migration 验证已完成 |
 | 03 摄入与分析主链路 | `DONE` | 输入、抓取、标准化、质量评分、去重、分析、chunk、embedding 与 process 主链路已跑通 |
-| 04 RAG 与周报 Workflow | `TODO` | 依赖模块 03 |
+| 04 RAG 与周报 Workflow | `DONE` | `M04-01 ~ M04-23` 已落地并完成 graph、checkpoint、run/resume API 与 API 级闭环验证 |
 | 05 前端工作台 | `TODO` | 可在 03 后局部并行 |
 | 06 联调与收尾 | `TODO` | 最后阶段 |
 
@@ -141,29 +141,29 @@
 
 | ID | 任务 | 状态 | 依赖 | 备注 |
 | --- | --- | --- | --- | --- |
-| M04-01 | 实现 cluster build service | `TODO` | M03, M02-07 | |
-| M04-02 | 实现 summary 检索逻辑 | `TODO` | M03-15 | |
-| M04-03 | 实现 source chunk backfill | `TODO` | M04-02 | |
-| M04-04 | 实现 context pack builder | `TODO` | M04-03, M02-12 | |
-| M04-05 | 实现 weekly draft service | `TODO` | M04-04 | |
-| M04-06 | 实现 reviewer service | `TODO` | M04-05 | |
-| M04-07 | 定义 LangGraph state schema 代码 | `TODO` | M02-09 ~ M02-12 | |
-| M04-08 | 实现 `collect_inputs` 节点 | `TODO` | M04-07 | |
-| M04-09 | 实现 `normalize_documents` 节点 | `TODO` | M04-07, M03-08 | |
-| M04-10 | 实现 `score_and_dedup` 节点 | `TODO` | M04-07, M03-10 | |
-| M04-11 | 实现 `analyze_documents` 节点 | `TODO` | M04-07, M03-12 | |
-| M04-12 | 实现 `build_clusters` 节点 | `TODO` | M04-07, M04-01 | |
-| M04-13 | 实现 `retrieve_history` 节点 | `TODO` | M04-07, M04-02 | |
-| M04-14 | 实现 `backfill_evidence` 节点 | `TODO` | M04-07, M04-03 | |
-| M04-15 | 实现 `draft_weekly_report` 节点 | `TODO` | M04-07, M04-05 | |
-| M04-16 | 实现 `review_evidence` 节点 | `TODO` | M04-07, M04-06 | |
-| M04-17 | 实现 `human_edit` 节点 | `TODO` | M04-07 | |
-| M04-18 | 实现 `export_markdown` 节点 | `TODO` | M04-07 | |
-| M04-19 | 组装 Weekly Report graph | `TODO` | M04-08 ~ M04-18 | |
-| M04-20 | 接入 Postgres checkpoint saver | `TODO` | M04-19 | |
-| M04-21 | 实现 workflow run API | `TODO` | M04-19 | |
-| M04-22 | 实现 workflow resume API | `TODO` | M04-20 | |
-| M04-23 | 跑通周报生成主链路 | `TODO` | M04-01 ~ M04-22 | |
+| M04-01 | 实现 cluster build service | `DONE` | M03, M02-07 | 已实现 weekly cluster 构建并落库 `clusters / cluster_items` |
+| M04-02 | 实现 summary 检索逻辑 | `DONE` | M03-15 | 已实现基于 summary embedding 的历史检索 |
+| M04-03 | 实现 source chunk backfill | `DONE` | M04-02 | 已实现基于检索结果的 chunk evidence 回填 |
+| M04-04 | 实现 context pack builder | `DONE` | M04-03, M02-12 | 已实现 `context_packs` 构建与落库 |
+| M04-05 | 实现 weekly draft service | `DONE` | M04-04 | 已实现 `reports / report_items` 草稿生成 |
+| M04-06 | 实现 reviewer service | `DONE` | M04-05 | 已实现结构化 reviewer 判据与 decision 输出 |
+| M04-07 | 定义 LangGraph state schema 代码 | `DONE` | M02-09 ~ M02-12 | 已新增 `workflows/weekly_report/state.py` |
+| M04-08 | 实现 `collect_inputs` 节点 | `DONE` | M04-07 | 已新增 workflow node 并接入 event/state persistence |
+| M04-09 | 实现 `normalize_documents` 节点 | `DONE` | M04-07, M03-08 | 已支持文档级失败跳过，避免单条坏 URL 拖垮整批 |
+| M04-10 | 实现 `score_and_dedup` 节点 | `DONE` | M04-07, M03-10 | 已输出 `accepted_document_ids` 与 `supporting_document_map` |
+| M04-11 | 实现 `analyze_documents` 节点 | `DONE` | M04-07, M03-12 | 已显式串联 summary / chunk / summary embedding |
+| M04-12 | 实现 `build_clusters` 节点 | `DONE` | M04-07, M04-01 | 已输出 `cluster_ids` 并落 workflow event |
+| M04-13 | 实现 `retrieve_history` 节点 | `DONE` | M04-07, M04-02 | 已接入 `retrieval_records` 并回写检索命中到 state |
+| M04-14 | 实现 `backfill_evidence` 节点 | `DONE` | M04-07, M04-03 | 已构建 `context_pack` 并回写 `context_pack_ref` |
+| M04-15 | 实现 `draft_weekly_report` 节点 | `DONE` | M04-07, M04-05 | 已接入 `reports / report_items` 草稿生成并回写 `report_id` |
+| M04-16 | 实现 `review_evidence` 节点 | `DONE` | M04-07, M04-06 | 已输出 reviewer decision/checks 并更新 retry_count |
+| M04-17 | 实现 `human_edit` 节点 | `DONE` | M04-07 | 已将 workflow/report 标记到人工编辑阶段 |
+| M04-18 | 实现 `export_markdown` 节点 | `DONE` | M04-07 | 已导出 Markdown 文件并将 workflow 置为 `completed` |
+| M04-19 | 组装 Weekly Report graph | `DONE` | M04-08 ~ M04-18 | 已新增 LangGraph graph 装配并支持 review 条件路由 |
+| M04-20 | 接入 Postgres checkpoint saver | `DONE` | M04-19 | 已接入 `langgraph-checkpoint-postgres` 并验证 compile 成功 |
+| M04-21 | 实现 workflow run API | `DONE` | M04-19 | 已新增 `POST /workflows/weekly-report/run` |
+| M04-22 | 实现 workflow resume API | `DONE` | M04-20 | 已新增 `POST /workflows/{workflow_run_id}/resume` |
+| M04-23 | 跑通周报生成主链路 | `DONE` | M04-01 ~ M04-22 | 已验证 API 级 `run -> human_edit interrupt -> resume -> export` 闭环 |
 
 ### 模块 04 可并行项
 
@@ -225,18 +225,14 @@
 
 当前应进入：
 
-### 模块 02：数据与模型
+### 模块 04：RAG 与周报 Workflow
 
 优先任务顺序建议：
 
-1. `M02-01 ~ M02-08`
-   内容资产模型
-2. `M02-09 ~ M02-15`
-   workflow / report 模型
-3. `M02-16`
-   导出模型
-4. `M02-17 ~ M02-19`
-   migration 与 metadata 验证
+1. `M05-01 ~ M05-04`
+   前端骨架与 Sources / Documents 基础页
+2. `M05-05 ~ M05-09`
+   Reports / Workflow Runs 页面与前后端联调
 
 ---
 
